@@ -1,1 +1,3 @@
-streammit
+streamlit
+google-generativeai
+Pillow
