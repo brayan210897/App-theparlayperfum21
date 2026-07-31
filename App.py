@@ -1,38 +1,55 @@
-
 import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
 st.set_page_config(page_title="AI Pro Bet Analyzer", layout="wide")
 st.title("🧠 AI Pro Bet Analyzer")
-st.caption("Conectado a Gemini 1.5 Pro: Análisis estadístico y predicciones por fiabilidad.")
+st.caption("Análisis estadístico, detección de trampas y predicciones de alta fiabilidad.")
 
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    modelo = genai.GenerativeModel('gemini-1.5-flash')
-except:
-    st.error("⚠️ Falta configurar tu Llave de Gemini en los Secretos de Streamlit.")
+    
+    # ---------------------------------------------------------
+    # EL CEREBRO AUTO-DETECTA QUÉ MODELOS TIENES DESBLOQUEADOS
+    # ---------------------------------------------------------
+    modelos_disponibles = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
+    
+    modelo_elegido = None
+    for m in modelos_disponibles:
+        if '1.5-flash' in m:
+            modelo_elegido = m
+            break
+            
+    if not modelo_elegido:
+        # Respaldo de seguridad por si acaso
+        modelo_elegido = 'models/gemini-1.5-flash'
+        
+    modelo = genai.GenerativeModel(modelo_elegido)
+    
+except Exception as e:
+    st.error("⚠️ Error de configuración con la llave. Revisa los Secrets de Streamlit.")
     st.stop()
 
 st.subheader("1. Ingresa los Juegos o Sube Capturas")
-juegos_texto = st.text_area("Escribe los equipos (1 a 10 juegos).", placeholder="Ej: Yankees vs Red Sox, América vs Cruz Azul...")
+juegos_texto = st.text_area("Escribe los equipos (1 a 10 juegos).", placeholder="Ej: Yankees vs Red Sox...")
 imagenes_subidas = st.file_uploader("Sube capturas con los momios (Opcional)", type=["png", "jpg", "jpeg"], accept_multiple_files=True)
 
 if st.button("🚀 Analizar Juegos Científicamente"):
     if not juegos_texto and not imagenes_subidas:
         st.warning("Por favor ingresa texto o sube al menos una imagen de los partidos.")
     else:
-        with st.spinner("🧠 Analizando estadísticas y leyendo momios..."):
+        # El sistema te avisará exactamente qué motor de IA encontró y está usando
+        with st.spinner(f"🧠 Analizando con el motor: {modelo_elegido}..."):
             prompt_maestro = """
             Actúa como el analista deportivo y matemático de apuestas más avanzado del mundo. 
-            Analiza los siguientes juegos proporcionados en texto y/o evalúa las imágenes con los tableros de momios.
-            Tu reporte debe tener OBLIGATORIAMENTE la siguiente estructura para cada juego analizado:
-            1. 📊 CONTEXTO Y ESTADO ACTUAL: Indaga factores críticos: localía, clima, rachas, lesiones. Influye POSITIVA o NEGATIVAMENTE.
-            2. 💸 ANÁLISIS DE MERCADO Y TRAMPAS: Analiza si hay "trampas matemáticas", si el favorito es real, y recomienda Moneyline.
+            Analiza los juegos y/o evalúa las imágenes con los tableros de momios.
+            Estructura OBLIGATORIA:
+            1. 📊 CONTEXTO Y ESTADO ACTUAL: Indaga localía, clima, rachas, lesiones. Influye POSITIVA o NEGATIVAMENTE.
+            2. 💸 ANÁLISIS DE MERCADO Y TRAMPAS: Analiza si hay "trampas matemáticas", valor real, y recomienda Moneyline.
             3. 🤖 RECOMENDACIONES ESTRUCTURADAS DE GEMINI AI PRO:
-               - 🟢 APUESTA SEGURA (>85% fiabilidad): La opción con máxima seguridad. Justifica.
-               - 🟡 APUESTA MEDIA-ALTA (70-85% fiabilidad): Excelente confianza verdadera pero momio jugoso. Justifica.
-               - 🔴 APUESTA MEDIA (45-70% fiabilidad): Momio muy jugoso y volátil, pero justificable. Justifica.
+               - 🟢 APUESTA SEGURA (>85% fiabilidad): Máxima seguridad. Justifica.
+               - 🟡 APUESTA MEDIA-ALTA (70-85% fiabilidad): Confianza verdadera. Justifica.
+               - 🔴 APUESTA MEDIA (45-70% fiabilidad): Momio volátil, pero justificable. Justifica.
             """
             
             inputs_para_ia = [prompt_maestro]
