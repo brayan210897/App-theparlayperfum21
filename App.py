@@ -9,7 +9,7 @@ st.caption("Conectado a Gemini 1.5 Pro: Análisis estadístico y predicciones po
 
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    modelo = genai.GenerativeModel('gemini-1.5-pro-latest')
+    modelo = genai.GenerativeModel('gemini-1.5-flash')
 except:
     st.error("⚠️ Falta configurar tu Llave de Gemini en los Secretos de Streamlit.")
     st.stop()
