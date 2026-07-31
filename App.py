@@ -2,7 +2,7 @@ import streamlit as st
 import google.generativeai as genai
 from PIL import Image
 
-Configuración de diseño
+# Configuración de diseño
 st.set_page_config(page_title="AI Pro Bet Analyzer", layout="wide")
 st.title("🧠 AI Pro Bet Analyzer")
 st.caption("Conectado a Gemini 1.5 Pro: Análisis estadístico, detección de trampas de Las Vegas y predicciones por fiabilidad.")
