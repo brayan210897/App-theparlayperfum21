@@ -8,24 +8,8 @@ st.caption("Análisis estadístico, detección de trampas y predicciones de alta
 
 try:
     genai.configure(api_key=st.secrets["GEMINI_API_KEY"])
-    
-    # ---------------------------------------------------------
-    # EL CEREBRO AUTO-DETECTA QUÉ MODELOS TIENES DESBLOQUEADOS
-    # ---------------------------------------------------------
-    modelos_disponibles = [m.name for m in genai.list_models() if 'generateContent' in m.supported_generation_methods]
-    
-    modelo_elegido = None
-    for m in modelos_disponibles:
-        if '1.5-flash' in m:
-            modelo_elegido = m
-            break
-            
-    if not modelo_elegido:
-        # Respaldo de seguridad por si acaso
-        modelo_elegido = 'models/gemini-1.5-flash'
-        
-    modelo = genai.GenerativeModel(modelo_elegido)
-    
+    # Usamos el modelo estable actual de Google
+    modelo = genai.GenerativeModel('gemini-2.0-flash')
 except Exception as e:
     st.error("⚠️ Error de configuración con la llave. Revisa los Secrets de Streamlit.")
     st.stop()
@@ -38,8 +22,7 @@ if st.button("🚀 Analizar Juegos Científicamente"):
     if not juegos_texto and not imagenes_subidas:
         st.warning("Por favor ingresa texto o sube al menos una imagen de los partidos.")
     else:
-        # El sistema te avisará exactamente qué motor de IA encontró y está usando
-        with st.spinner(f"🧠 Analizando con el motor: {modelo_elegido}..."):
+        with st.spinner("🧠 Analizando estadísticas, clima, lesiones y leyendo momios..."):
             prompt_maestro = """
             Actúa como el analista deportivo y matemático de apuestas más avanzado del mundo. 
             Analiza los juegos y/o evalúa las imágenes con los tableros de momios.
